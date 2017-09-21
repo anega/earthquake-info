@@ -7,17 +7,17 @@ import java.sql.Date;
  */
 
 public class Earthquake {
-    private double mMagnitude;
+    private String mMagnitude;
     private String mPlace;
-    private Date mDate;
+    private String mDate;
 
-    public Earthquake(double magnitude, String place, Date date) {
+    public Earthquake(String magnitude, String place, String date) {
         mMagnitude = magnitude;
         mPlace = place;
         mDate = date;
     }
 
-    public double getMagnitude() {
+    public String getMagnitude() {
         return mMagnitude;
     }
 
@@ -25,7 +25,7 @@ public class Earthquake {
         return mPlace;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return mDate;
     }
 }
