@@ -1,20 +1,18 @@
 package com.example.android.quakereport;
 
-import java.sql.Date;
-
 /**
  * Created by anega on 9/19/17.
  */
 
 public class Earthquake {
     private String mMagnitude;
-    private String mPlace;
-    private String mDate;
+    private String mLocation;
+    private long mTimeInMilliseconds;
 
-    public Earthquake(String magnitude, String place, String date) {
+    public Earthquake(String magnitude, String location, long timeInMilliseconds) {
         mMagnitude = magnitude;
-        mPlace = place;
-        mDate = date;
+        mLocation = location;
+        mTimeInMilliseconds = timeInMilliseconds;
     }
 
     public String getMagnitude() {
@@ -22,10 +20,10 @@ public class Earthquake {
     }
 
     public String getPlace() {
-        return mPlace;
+        return mLocation;
     }
 
-    public String getDate() {
-        return mDate;
+    public long getTimeInMilliseconds() {
+        return mTimeInMilliseconds;
     }
 }
