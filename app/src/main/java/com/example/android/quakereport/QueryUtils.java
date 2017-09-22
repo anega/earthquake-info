@@ -60,8 +60,9 @@ public final class QueryUtils {
                 double magnitude = earthquakeItemProps.getDouble("mag");
                 String place = earthquakeItemProps.getString("place");
                 long time = earthquakeItemProps.getLong("time");
+                String url = earthquakeItemProps.getString("url");
 
-                earthquakes.add(new Earthquake(magnitude, place, time));
+                earthquakes.add(new Earthquake(magnitude, place, time, url));
             }
 
         } catch (JSONException e) {
