@@ -16,6 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Helper methods related to requesting and receiving earthquake data from USGS.
@@ -33,10 +34,12 @@ public final class QueryUtils {
     }
 
     /**
-     * Return a list of {@link Earthquake} objects that has been built up from
-     * parsing a JSON response.
+     * Query the USGS dataset and return a list of {@link Earthquake} objects.
+     *
+     * @param requestUrl
+     * @return
      */
-    public static ArrayList<Earthquake> extractEarthquakes(String requestUrl) {
+    public static List<Earthquake> fetchEarthquakeData(String requestUrl) {
         // Create URL object
         URL url = createUrl(requestUrl);
 
@@ -48,15 +51,18 @@ public final class QueryUtils {
             Log.e(LOG_TAG, "Error closing input stream", e);
         }
 
-        // Extract relevant fields from the JSON response and create an {@link Event} object
-        ArrayList<Earthquake> earthquakesList = extractFeatureFromJson(jsonResponse);
+        // Extract relevant fields from the JSON response and create a list of {@link Earthquake}s
+        List<Earthquake> earthquakesList = extractFeatureFromJson(jsonResponse);
 
-        // Return the {@link Event}
+        // Return the list of {@link Earthquake}s
         return earthquakesList;
     }
 
     /**
      * Returns new URL object from the given string URL.
+     *
+     * @param stringUrl String url where the request will be send
+     * @return URL
      */
     private static URL createUrl(String stringUrl) {
         URL url = null;
@@ -71,10 +77,15 @@ public final class QueryUtils {
 
     /**
      * Make an HTTP request to the given URL and return a String as the response.
+     *
+     * @param url request url
+     * @return response String
+     * @throws IOException
      */
     private static String makeHttpRequest(URL url) throws IOException {
         String jsonResponse = "";
 
+        // If the URL is null, then return early
         if (url == null) {
             return jsonResponse;
         }
@@ -89,6 +100,7 @@ public final class QueryUtils {
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
+            // If the request was successful (response code 200), then read the input stream and parse the response.
             if (urlConnection.getResponseCode() == 200) {
                 inputStream = urlConnection.getInputStream();
                 jsonResponse = readFromStream(inputStream);
@@ -102,6 +114,9 @@ public final class QueryUtils {
                 urlConnection.disconnect();
             }
             if (inputStream != null) {
+                // Closing the input stream could throw an IOException, which is why
+                // the makeHttpRequest(URL url) method signature specifies than an IOException
+                // could be thrown.
                 inputStream.close();
             }
         }
@@ -110,8 +125,11 @@ public final class QueryUtils {
     }
 
     /**
-     * Convert the {@link InputStream} into a String which contains the
-     * whole JSON response from the server.
+     * Convert the {@link InputStream} into a String which contains the whole JSON response from the server.
+     *
+     * @param inputStream read InputStram from request
+     * @return String output
+     * @throws IOException
      */
     private static String readFromStream(InputStream inputStream) throws IOException {
         StringBuilder output = new StringBuilder();
@@ -130,39 +148,52 @@ public final class QueryUtils {
     }
 
     /**
-     * Return an {@link Earthquake} object by parsing out information
-     * about the first earthquake from the input earthquakeJSON string.
+     * Return an {@link Earthquake} object by parsing out information about the first earthquake from the input earthquakeJSON string.
+     *
+     * @param earthquakeJson response JSON
+     * @return the list of earthquakes List<Earthquake>
      */
-    private static ArrayList<Earthquake> extractFeatureFromJson(String earthquakeJson) {
+    private static List<Earthquake> extractFeatureFromJson(String earthquakeJson) {
         // If the JSON string is empty or null, then return early.
         if (TextUtils.isEmpty(earthquakeJson)) {
             return null;
         }
 
         // Create an empty ArrayList that we can start adding earthquakes to
-        ArrayList<Earthquake> earthquakes = new ArrayList<>();
+        List<Earthquake> earthquakes = new ArrayList<>();
 
-        // Try to parse the SAMPLE_JSON_RESPONSE. If there's a problem with the way the JSON
+        // Try to parse the JSON response string. If there's a problem with the way the JSON
         // is formatted, a JSONException exception object will be thrown.
         // Catch the exception so the app doesn't crash, and print the error message to the logs.
         try {
-            // Parse the response given by the SAMPLE_JSON_RESPONSE string and
-            // build up a list of Earthquake objects with the corresponding data.
+            // Create a JSONObject from the JSON response string
             JSONObject jsonObj = new JSONObject(earthquakeJson);
+            // Extract the JSONArray associated with the key called "features",
+            // which represents a list of features (or earthquakes).
             JSONArray earthquakeList = jsonObj.getJSONArray("features");
             int earthquakeListLen = earthquakeList.length();
 
+            // For each earthquake in the earthquakeArray, create an {@link Earthquake} object
             for (int i = 0; i < earthquakeListLen; i++) {
+                // Get a single earthquake at position i within the list of earthquakes
                 JSONObject earthquakeItem = earthquakeList.getJSONObject(i);
+                // For a given earthquake, extract the JSONObject associated with the
+                // key called "properties", which represents a list of all properties
+                // for that earthquake.
                 JSONObject earthquakeItemProps = earthquakeItem.getJSONObject("properties");
+                // Extract the value for the key called "mag"
                 double magnitude = earthquakeItemProps.getDouble("mag");
+                // Extract the value for the key called "place"
                 String place = earthquakeItemProps.getString("place");
+                // Extract the value for the key called "time"
                 long time = earthquakeItemProps.getLong("time");
+                // Extract the value for the key called "url"
                 String url = earthquakeItemProps.getString("url");
 
+                // Create a new {@link Earthquake} object with the magnitude, location, time,
+                // and url from the JSON response and add it to the list of earthquakes.
                 earthquakes.add(new Earthquake(magnitude, place, time, url));
             }
-
         } catch (JSONException e) {
             // If an error is thrown when executing any of the above statements in the "try" block,
             // catch the exception here, so the app doesn't crash. Print a log message
