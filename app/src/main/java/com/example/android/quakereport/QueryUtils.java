@@ -22,7 +22,6 @@ import java.util.List;
  * Helper methods related to requesting and receiving earthquake data from USGS.
  */
 public final class QueryUtils {
-
     private static final String LOG_TAG = QueryUtils.class.getSimpleName();
 
     /**
