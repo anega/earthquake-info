@@ -22,7 +22,6 @@ import android.content.Loader;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -35,7 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EarthquakeActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Earthquake>> {
-
     // Adapter for the list of earthquakes
     private EarthquakeAdapter mAdapter;
     // Set class log tag
